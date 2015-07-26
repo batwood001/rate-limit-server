@@ -185,74 +185,74 @@ describe('the server', function() {
 
   describe('the endpoint', function() {
 
-    // beforeEach(function(done){
-    //   console.log("Waiting 10s...");
-    //   setTimeout(function(){
-    //     done();
-    //   }, 10000);
-    // });
+    beforeEach(function(done){
+      console.log("Waiting 10s...");
+      setTimeout(function(){
+        done();
+      }, 10000);
+    });
 
-    // it('should receive a 200 status when it pings the Riot server 10 times in a row', function(done) {
+    it('should not respond with a "loading" message when pinged 10 times in a row', function(done) {
         
-    //   var loading = false;
+      var loading = false;
 
-    //   console.log('---- 10 times 0 seconds ----');
+      console.log('---- 10 times 0 seconds ----');
 
-    //   for (var i = 0; i < 10; i++) {
-    //     request('http://localhost:3000/riotrequest', function(err, res, body) {
-    //       if (res.body === 'loading') loading = true
-    //     })
-    //   }
+      for (var i = 0; i < 10; i++) {
+        request('http://localhost:3000/riotrequest', function(err, res, body) {
+          if (res.body === 'loading') loading = true
+        })
+      }
 
-    //   // this is a hacky way to test async requests
-    //   setTimeout(function() {
-    //     expect(loading).to.equal(false)
-    //     done()
-    //   }, 1000);
+      // this is a hacky way to test async requests
+      setTimeout(function() {
+        expect(loading).to.equal(false)
+        done()
+      }, 1000);
     
-    // })    
+    })    
 
-    // it('should receive a "loading" message when it pings the Riot server 11 times in a row', function(done) {
+    it('should respond with a "loading" message when pinged 11 times in a row', function(done) {
         
-    //   var loading = false;
+      var loading = false;
 
-    //   console.log('---- 11 times 0 seconds ----');
+      console.log('---- 11 times 0 seconds ----');
 
-    //   for (var i = 0; i < 11; i++) {
-    //     request('http://localhost:3000/riotrequest', function(err, res, body) {
-    //       if (res.body === 'loading') loading = true
-    //     })
-    //   }
+      for (var i = 0; i < 11; i++) {
+        request('http://localhost:3000/riotrequest', function(err, res, body) {
+          if (res.body === 'loading') loading = true
+        })
+      }
 
-    //   // this is a hacky way to test async requests
-    //   setTimeout(function() {
-    //     expect(loading).to.equal(true)
-    //     done()
-    //   }, 1000);
+      // this is a hacky way to test async requests
+      setTimeout(function() {
+        expect(loading).to.equal(true)
+        done()
+      }, 1000);
     
-    // })
+    })
 
-    // it('should not receive a 429 error from the Riot server', function(done) {
+    it('should not receive a 429 error from the Riot server when pinged 15 times in a row', function(done) {
         
-    //   var throttled = false;
+      var throttled = false;
 
-    //   console.log('---- 15 times 0 seconds ----');
+      console.log('---- 15 times 0 seconds ----');
 
-    //   for (var i = 0; i < 15; i++) {
-    //     request('http://localhost:3000/riotrequest', function(err, res, body) {
-    //       if (res.body === '429') throttled = true
-    //     })
-    //   }
+      for (var i = 0; i < 15; i++) {
+        request('http://localhost:3000/riotrequest', function(err, res, body) {
+          if (res.body === '429') throttled = true
+        })
+      }
 
-    //   // this is a hacky way to test async requests
-    //   setTimeout(function() {
-    //     expect(throttled).to.equal(false)
-    //     done()
-    //   }, 1000);
+      // this is a hacky way to test async requests
+      setTimeout(function() {
+        expect(throttled).to.equal(false)
+        done()
+      }, 1000);
     
-    // })
+    })
 
-    it('should not receive a 429 error when it is pinged 5 times, waits 9 seconds, pings it another 5 times, waits 3 seconds, then pinged 11 times', function(done) {
+    it('should not receive a 429 error when pinged 5 times, waits 9 seconds, pings it another 5 times, waits 3 seconds, then pinged 11 times', function(done) {
       
       var throttled = false;
 
@@ -260,7 +260,6 @@ describe('the server', function() {
 
       for (var i = 0; i < 5; i++) {
         request('http://localhost:3000/riotrequest', function(err, res, body) {
-          console.log('res.body: ', res.body)
           if (res.body === '429') throttled = true
         })
       }
@@ -268,16 +267,14 @@ describe('the server', function() {
       setTimeout(function() {
         for (var i = 0; i < 5; i++) {
           request('http://localhost:3000/riotrequest', function(err, res, body) {
-            console.log('res.body: ', res.body)
             if (res.body === '429') throttled = true
           })
         }
       }, 9000)
 
       setTimeout(function() {
-        for (var i = 0; i < 15; i++) {
+        for (var i = 0; i < 11; i++) {
           request('http://localhost:3000/riotrequest', function(err, res, body) {
-            console.log('res.body: ', res.body)
             if (res.body === '429') throttled = true
           })
         }
@@ -293,20 +290,3 @@ describe('the server', function() {
   })
 
 })
-
-
-// Tests:
-
-// It:
-
-// Should make an API call to the Riot server upon receiving a GET request from a slave
-
-  // Need to know: How many requests can I get away with? How does the Riot server 10-second rule work?
-
-// Should add an incoming request to a queue if the server is in refractory period
-
-    // You will need to model the server's refractory period, as above (ln 7)
-
-// Should still make a GET request to Riot API after submitting > 10 consecutive requests
-
-// Should show a loading circle on the front-end whenever data are loading
