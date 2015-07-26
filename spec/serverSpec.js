@@ -30,12 +30,11 @@ describe('the server', function() {
     })
 
 
-    it('should receive a 423 error when it pings the Riot server 10 times in 10 seconds', function(done) {
+    it('should receive a 429 error when it pings the Riot server 10 times in 10 seconds', function(done) {
       
       var status;
 
       for (var i = 0; i < 10; i++) {
-        console.log("counting", i)
         apiCaller.getStatus(testUrl, function(responseStatus) {
           status = responseStatus;
         })
@@ -44,6 +43,7 @@ describe('the server', function() {
       setTimeout(function(){
         expect(status).to.equal(429)
       }, 500);
+
       done();
 
     })
