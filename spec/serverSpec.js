@@ -8,49 +8,114 @@ var testUrl = 'https://na.api.pvp.net/api/lol/na/v1.4/summoner/by-name/' + name 
 
 
 describe('the server', function() {
+  // Set Mocha timeout to 1 minute
+  this.timeout(60000)
 
   describe('the apiCaller', function(){
-
-    it('should receive a 200 status when it pings the Riot server 9 times in 10 seconds', function(done) {
-      
-      var status;
-
-      for (var i = 0; i < 9; i++) {
-        apiCaller.getStatus(testUrl, function(responseStatus) {
-          status = responseStatus;
-        })
-      }
-
+    
+    // wait 10 seconds before each test
+    beforeEach(function(done){
+      console.log("Waiting 10s...");
       setTimeout(function(){
-        expect(status).to.equal(200)
-      }, 500);
+        done();
+      }, 10000);
+    });
 
-      done()
+    it('should receive a 200 status when it pings the Riot server 10 times in a row', function(done) {
+        
+      var throttled = false;
 
-    })
-
-
-    it('should receive a 429 error when it pings the Riot server 10 times in 10 seconds', function(done) {
-      
-      var status;
+      console.log('---- 10 times ----');
 
       for (var i = 0; i < 10; i++) {
         apiCaller.getStatus(testUrl, function(responseStatus) {
-          status = responseStatus;
+          console.log(responseStatus)
+          if (responseStatus === 429) throttled = true;
         })
       }
 
-      setTimeout(function(){
-        expect(status).to.equal(429)
+      setTimeout(function() {
+        expect(throttled).to.equal(false)
+        done()
+      }, 500);
+    
+    })
+
+    it('should receive a 429 error when it pings the Riot server 11 times in a row', function(done) {
+      
+      var throttled = false;
+      console.log('---- 11 times ----');
+
+      for (var i = 0; i < 11; i++) {
+        apiCaller.getStatus(testUrl, function(responseStatus) {
+          console.log(responseStatus)
+          if (responseStatus === 429) throttled = true;
+        })
+      }
+
+      setTimeout(function() {
+        expect(throttled).to.equal(true)
+        done()
       }, 500);
 
-      done();
+    })
+
+    it('should receive a 200 status when it pings the Riot server 10 times in ten seconds', function(done) {
+      
+      var throttled = false;
+      console.log('---- 10 times 10 seconds ----');
+
+      (function countDownWithDelay(i) {          
+        setTimeout(function() {   
+          apiCaller.getStatus(testUrl, function(responseStatus) {
+            console.log(i + ' ' + responseStatus);
+            if (responseStatus === 429) throttled = true;
+          })                
+          if (--i) countDownWithDelay(i); //  decrement i and call myLoop again if i > 0
+        }, 1000)
+      })(10);
+
+      setTimeout(function() {
+        expect(throttled).to.equal(false)
+        done();
+      }, 12000);
+      
+    })       
+
+    it('should receive a 429 error when it pings the Riot server 11 times in ten seconds', function(done) {
+      
+      var throttled = false;
+      console.log('---- 11 times 10 seconds ----');
+
+      (function countDownWithDelay (i) {          
+        setTimeout(function() {   
+          apiCaller.getStatus(testUrl, function(responseStatus) {
+            console.log(i + ' ' + responseStatus);
+            if (responseStatus === 429) throttled = true;
+          })                
+          if (--i) countDownWithDelay(i);
+        }, (9999 / 11))
+      })(11); 
+        
+      setTimeout(function() { 
+        expect(throttled).to.equal(true)
+        done()
+      }, 12000);  
 
     })
 
   })
 
 })
+
+// console.time("1")
+// console.time("2")
+// setTimeout(function(){
+//   console.timeEnd("1");
+//   setTimeout(function(){
+//     console.timeEnd("2")
+//   }, 4000)
+// }, 2000)
 
 // Tests:
 

@@ -4,6 +4,8 @@ exports.apiCaller = {};
 
 exports.apiCaller.get = function(url, cb) {
 
+  // gets response body
+
   https.get(url, function(response){
     var data = '';
 
@@ -20,6 +22,8 @@ exports.apiCaller.get = function(url, cb) {
 }
 
 exports.apiCaller.getStatus = function(url, cb) {
+  
+  // This is only for testing purposes
 
   https.get(url, function(response) {
     cb(response.statusCode)
