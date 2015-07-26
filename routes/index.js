@@ -1,32 +1,34 @@
 var express = require('express');
-var requestQueue = require('queue/queue');
-var apiCaller = require('HTTP_helpers/apiCaller');
+// var requestQueue = require('queue/queue');
+var apiCaller = require('../HTTP_helpers/apiCaller').apiCaller;
 var router = express.Router();
+var RateLimiter = require('limiter').RateLimiter;
+var limiter = new RateLimiter(10, 10000, true); // 1s buffer, from trial and error
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
-});
+// GET RID OF THIS
+var apiKey = '2d13bb23-9bde-4668-82a0-2c0615eb6a92';
+var name = 'Blogtastic';
+var testUrl = 'https://na.api.pvp.net/api/lol/na/v1.4/summoner/by-name/' + name + '?api_key=' + apiKey;
+
+
 
 // naming of this endpoint?
 router.get('/riotrequest', function(req, res, next) {
-  // if queue is not full
-  if (queue.canMakeAPICallImmediately()){
-    // handle the request immediately
-    apiCaller.get(req./* path-to-url */, function(data) {
-      res.end(data)
-    })
-    
-  } else {
-    queue.enqueue(req./* path-to-url */)
-  }
+
+  limiter.removeTokens(1, function(err, remainingRequests) {
+
+    if (remainingRequests > 0) {
+      apiCaller.getStatus(testUrl, function(data) {
+        res.end('' + data)
+      })
+    } else {
+      // defer request to a queue 
+      res.end('loading')
+    }
+
+  });
 
 
-  // else
-
-    // defer request to a queue
-
-      // suss out the queue details so that it fires of a request itself 
 })
 
 module.exports = router;
