@@ -1,36 +1,56 @@
 var express = require('express');
-// var requestQueue = require('queue/queue');
-var apiCaller = require('../HTTP_helpers/apiCaller').apiCaller;
+var apiCaller = require('../HTTP_helpers/api-caller').apiCaller;
 var router = express.Router();
 var RateLimiter = require('limiter').RateLimiter;
-var limiter = new RateLimiter(11, 10000, true); // this is a weird hack, but it seems to work
+var limiter = new RateLimiter(11, 10000, true); // this is a weird hack, but it works
 
-// GET RID OF THIS
-var apiKey = '2d13bb23-9bde-4668-82a0-2c0615eb6a92';
-var name = 'Blogtastic';
-var testUrl = 'https://na.api.pvp.net/api/lol/na/v1.4/summoner/by-name/' + name + '?api_key=' + apiKey;
-
-
-
-// naming of this endpoint?
+// Rename?
 router.get('/riotrequest', function(req, res, next) {
+
+  var riotUrl = req.query.riotUrl; // VALIDATE THIS INPUT
 
   limiter.removeTokens(1, function(err, remainingRequests) {
 
     // part of the weird hack (1 instead of 0):
     if (remainingRequests > 1) {
-      apiCaller.getStatus(testUrl, function(data) {
-        // maybe handle the occasional 429?
-        res.end('' + data)
+      // if request is for static / infrequently changing data, check Redis
+
+      // else
+      apiCaller.get(riotUrl, function(data) {
+        res.end(data)
       })
     } else {
-      // defer request to a queue 
-      res.end('loading')
+      res.end('throttling')
     }
 
   });
-
-
 })
+
+/* ---EXPERIMENTING BELOW THIS LINE --- */
+
+// jobs.process('new_job', function (job, done){
+//   /* carry out all the job functions here */
+//   job.data.res.end('its alive!')
+//   console.log('Job', job.id, ' ', job.data, 'is done');
+//   done && done();
+// })
+
+// function newJob(data){
+//   name = name || 'Default_Name';
+
+//   var job = jobs.create('new_job', {
+//     data: data
+//   });
+
+//   job
+//     .on('complete', function(){
+//       console.log('Job', job.id, 'with name', job.data.name, 'is done');
+//     })
+//     .on('failed', function(){
+//       console.log('Job', job.id, 'with name', job.data.name, 'has failed');
+//     });
+
+//   job.save();
+// }
 
 module.exports = router;

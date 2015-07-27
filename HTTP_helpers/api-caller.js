@@ -1,12 +1,13 @@
 var https = require('https');
+var apiKey = '2d13bb23-9bde-4668-82a0-2c0615eb6a92';
 
 exports.apiCaller = {};
 
 exports.apiCaller.get = function(url, cb) {
+  https.get(url + '?api_key=' + apiKey, function(response){
 
-  // gets response body
+    if (response.statusCode === 429) cb('429') // change this to real error
 
-  https.get(url, function(response){
     var data = '';
 
     response.on('data', function(stream) {
@@ -18,15 +19,4 @@ exports.apiCaller.get = function(url, cb) {
     })
 
   })
-
-}
-
-exports.apiCaller.getStatus = function(url, cb) {
-  
-  // This is only for testing purposes
-
-  https.get(url, function(response) {
-    cb(response.statusCode)
-  })
-
 }
